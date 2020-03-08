@@ -52,7 +52,15 @@ function promptCustomerForQuantity(product) {
 
 // Purchase the desired quantity of the desired item
 function makePurchase(product, quantity) {
-  
+  connection.query("update products set qty = qty + " + quantity + " where id = "+ product + ";", function(err, res) {
+    if (err) throw err;
+
+    // Draw the table in the terminal using the response
+    console.table(res);
+
+    // Then prompt the customer for their choice of product, pass all the products to promptCustomerForItem
+    promptCustomerForItem(res);
+  });
 }
 
 // Check to see if the product the user chose exists in the inventory
