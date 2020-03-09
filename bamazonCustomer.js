@@ -56,9 +56,14 @@ function promptCustomerForItem() {
 
     if (res.choice === "x") {
       connection.end();
+      console.log("goodbye");
+      
     }
     else if (res.choice === "bal") {
       showBal();
+    }
+    else if(res.choice === "$spent"){
+      showTotalSpent();
     }
     else {
       promptCustomerForQuantity(res.choice);
@@ -100,6 +105,10 @@ function makePurchase(product, quantity) {
           connection.query("select bal from balTable where id = 1;", function (err, resp) {
             if (err) throw err;
             var bal = resp[0].bal
+            var newBalance = cost * quantity;
+            updateTotalSpent(newBalance);
+            console.log("cost:" + newBalance);
+            
             if(bal - cost <= 0){
               connection.end();
               return console.log("insufficient balance of: " + bal);
@@ -110,9 +119,8 @@ function makePurchase(product, quantity) {
       
               // Draw the table in the terminal using the response
               console.table(res);
-      
-              // Then prompt the customer for their choice of product, pass all the products to promptCustomerForItem
-              promptCustomerForItem();
+    
+              updateBal(newBalance);
             });
            }
           });
@@ -136,14 +144,25 @@ function showBal() {
   });
 }
 
-
-
-
-// Check to see if the user wants to quit the program
-function checkIfShouldExit(choice) {
-  if (choice.toLowerCase() === "q") {
-    // Log a message and exit the current node process
-    console.log("Goodbye!");
-    process.exit(0);
-  }
+function updateBal(balNum){
+  connection.query("update balTable set bal = bal - " + balNum + " where id = 1;", function (err, res) {
+    if (err) throw err;
+    loadProducts();
+    
+  });
 }
+
+function updateTotalSpent(TotalSpent){
+  connection.query("update balTable set tSpent = tSpent + " + TotalSpent + " where id = 1;", function (err, res) {
+    if (err) throw err;
+  });
+}
+
+function showTotalSpent(){
+  connection.query("select tSpent from balTable where id = 1;", function (err, res) {
+    if (err) throw err;
+    console.log("you have spent: " + res[0].tSpent + "!");
+    connection.end();
+  });
+}
+
