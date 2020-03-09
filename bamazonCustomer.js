@@ -36,23 +36,36 @@ function loadProducts() {
     console.table(res);
 
     // Then prompt the customer for their choice of product, pass all the products to promptCustomerForItem
-    promptCustomerForItem(res);
+    promptCustomerForItem();
   });
+ 
+}
+
+// Prompt the customer for a product ID
+function promptCustomerForItem() {
+  // Prompts user for what they would like to purchase
   inquirer.prompt([
     {
-      name: "choices",
+      name: "choice",
       type: "input",
       message: "enter a product code press x to exit"
   },
   
   ]).then(function(res){
-  console.log(res.choices);
+
   
-  switch (res.choices) {
-    case "x":
-      connection.end();
-      break;
-  }
+if(res.choice === "x"){
+  connection.end();
+}
+else{
+  promptCustomerForQuantity(res.choice);
+}
+ 
+  });
+}
+
+// Prompt the customer for a product quantity
+function promptCustomerForQuantity(product) {
   inquirer.prompt([
     {
       type: "input",
@@ -61,42 +74,45 @@ function loadProducts() {
     }
   ]).then(function (response){
     
-    makePurchase(res.choices, response.qty)
+    makePurchase(product, response.qty)
   });
- 
-  });
-}
-
-// Prompt the customer for a product ID
-function promptCustomerForItem(inventory) {
-  // Prompts user for what they would like to purchase
- 
-}
-
-// Prompt the customer for a product quantity
-function promptCustomerForQuantity(product) {
 }
 
 
 // Purchase the desired quantity of the desired item
 function makePurchase(product, quantity) {
-  connection.query("update products set qty = qty - " + quantity + " where id = "+ product + ";", function(err, res) {
+  connection.query("select qty from products where id = "+ product + ";", function(err, resp){
     if (err) throw err;
+    var qty = resp[0].qty;
+    if(qty - quantity <= 0 ){
+      connection.end();
+      return console.log("Insufficient quantity!");
+    }
+    else{
+      connection.query("update products set qty = qty - " + quantity + " where id = "+ product + ";", function(err, res) {
+        if (err) throw err;
+    
+        // Draw the table in the terminal using the response
+        console.table(res);
+    
+        // Then prompt the customer for their choice of product, pass all the products to promptCustomerForItem
+        promptCustomerForItem(res);
+      });
+    }
+  })
 
-    // Draw the table in the terminal using the response
-    console.table(res);
-
-    // Then prompt the customer for their choice of product, pass all the products to promptCustomerForItem
-    promptCustomerForItem(res);
-  });
+ 
   loadProducts();
-  connection.end();
 }
 
 // Check to see if the product the user chose exists in the inventory
 function checkInventory(choiceId, inventory) {
  
 }
+
+ 
+
+
 
 // Check to see if the user wants to quit the program
 function checkIfShouldExit(choice) {
