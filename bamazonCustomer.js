@@ -19,7 +19,7 @@ var connection = mysql.createConnection({
 });
 
 // Creates the connection with the server and loads the product data upon a successful connection
-connection.connect(function(err) {
+connection.connect(function (err) {
   if (err) {
     console.error("error connecting: " + err.stack);
   }
@@ -29,7 +29,7 @@ connection.connect(function(err) {
 // Function to load the products table from the database and print results to the console
 function loadProducts() {
   // Selects all of the data from the MySQL products table
-  connection.query("SELECT * FROM products", function(err, res) {
+  connection.query("SELECT * FROM products", function (err, res) {
     if (err) throw err;
 
     // Draw the table in the terminal using the response
@@ -38,7 +38,7 @@ function loadProducts() {
     // Then prompt the customer for their choice of product, pass all the products to promptCustomerForItem
     promptCustomerForItem();
   });
- 
+
 }
 
 // Prompt the customer for a product ID
@@ -48,19 +48,22 @@ function promptCustomerForItem() {
     {
       name: "choice",
       type: "input",
-      message: "enter a product code press x to exit"
-  },
-  
-  ]).then(function(res){
+      message: "enter a product id or press x to exit. \ntype bal to see your current balance. \ntype $spent to see the all time total you have spent"
+    },
 
-  
-if(res.choice === "x"){
-  connection.end();
-}
-else{
-  promptCustomerForQuantity(res.choice);
-}
- 
+  ]).then(function (res) {
+
+
+    if (res.choice === "x") {
+      connection.end();
+    }
+    else if (res.choice === "bal") {
+      showBal();
+    }
+    else {
+      promptCustomerForQuantity(res.choice);
+    }
+
   });
 }
 
@@ -72,8 +75,8 @@ function promptCustomerForQuantity(product) {
       message: "specify the quanity",
       name: "qty"
     }
-  ]).then(function (response){
-    
+  ]).then(function (response) {
+
     makePurchase(product, response.qty)
   });
 }
@@ -81,36 +84,58 @@ function promptCustomerForQuantity(product) {
 
 // Purchase the desired quantity of the desired item
 function makePurchase(product, quantity) {
-  connection.query("select qty from products where id = "+ product + ";", function(err, resp){
+  connection.query("select qty from products where id = " + product + ";", function (err, resp) {
     if (err) throw err;
     var qty = resp[0].qty;
-    if(qty - quantity <= 0 ){
+    if (qty - quantity <= 0) {
       connection.end();
       return console.log("Insufficient quantity!");
     }
-    else{
-      connection.query("update products set qty = qty - " + quantity + " where id = "+ product + ";", function(err, res) {
-        if (err) throw err;
-    
-        // Draw the table in the terminal using the response
-        console.table(res);
-    
-        // Then prompt the customer for their choice of product, pass all the products to promptCustomerForItem
-        promptCustomerForItem(res);
-      });
-    }
-  })
+    else {
+  
 
- 
-  loadProducts();
-}
+        connection.query("select price from products where id = " + product + ";", function (err, res) {
+          if (err) throw err;
+          var cost = res[0].price;
+          connection.query("select bal from balTable where id = 1;", function (err, resp) {
+            if (err) throw err;
+            var bal = resp[0].bal
+            if(bal - cost <= 0){
+              connection.end();
+              return console.log("insufficient balance of: " + bal);
+            }
+           else{
+            connection.query("update products set qty = qty - " + quantity + " where id = " + product + ";", function (err, res) {
+              if (err) throw err;
+      
+              // Draw the table in the terminal using the response
+              console.table(res);
+      
+              // Then prompt the customer for their choice of product, pass all the products to promptCustomerForItem
+              promptCustomerForItem();
+            });
+           }
+          });
+          
+        });
+     
+    };
+  });
+};
 
 // Check to see if the product the user chose exists in the inventory
 function checkInventory(choiceId, inventory) {
- 
+
+}
+function showBal() {
+  connection.query("select bal from balTable where id = 1;", function (err, res) {
+    if (err) throw err;
+    console.log("you have: $" + res[0].bal + " remaining.");
+
+    connection.end();
+  });
 }
 
- 
 
 
 
