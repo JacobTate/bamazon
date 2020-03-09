@@ -38,6 +38,33 @@ function loadProducts() {
     // Then prompt the customer for their choice of product, pass all the products to promptCustomerForItem
     promptCustomerForItem(res);
   });
+  inquirer.prompt([
+    {
+      name: "choices",
+      type: "input",
+      message: "enter a product code press x to exit"
+  },
+  
+  ]).then(function(res){
+  console.log(res.choices);
+  
+  switch (res.choices) {
+    case "x":
+      connection.end();
+      break;
+  }
+  inquirer.prompt([
+    {
+      type: "input",
+      message: "specify the quanity",
+      name: "qty"
+    }
+  ]).then(function (response){
+    
+    makePurchase(res.choices, response.qty)
+  });
+ 
+  });
 }
 
 // Prompt the customer for a product ID
@@ -50,9 +77,10 @@ function promptCustomerForItem(inventory) {
 function promptCustomerForQuantity(product) {
 }
 
+
 // Purchase the desired quantity of the desired item
 function makePurchase(product, quantity) {
-  connection.query("update products set qty = qty + " + quantity + " where id = "+ product + ";", function(err, res) {
+  connection.query("update products set qty = qty - " + quantity + " where id = "+ product + ";", function(err, res) {
     if (err) throw err;
 
     // Draw the table in the terminal using the response
@@ -61,6 +89,8 @@ function makePurchase(product, quantity) {
     // Then prompt the customer for their choice of product, pass all the products to promptCustomerForItem
     promptCustomerForItem(res);
   });
+  loadProducts();
+  connection.end();
 }
 
 // Check to see if the product the user chose exists in the inventory
