@@ -48,7 +48,7 @@ function promptCustomerForItem() {
     {
       name: "choice",
       type: "input",
-      message: "enter a product id or press x to exit. \ntype bal to see your current balance. \ntype $spent to see the all time total you have spent"
+      message: "enter a product id or press x to exit. \n------ type bal to see your current balance. \n------ type $spent to see the all time total you have spent"
     },
 
   ]).then(function (res) {

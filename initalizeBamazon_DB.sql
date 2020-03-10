@@ -8,9 +8,11 @@ department varchar(50) not null,
 qty integer(4) not null,
 primary key(id) 
 );
-create table bal(
+create table balTable(
+id int not null auto_increment,
 bal decimal(20) not null,
-tSpent decimal(20) not null
+tSpent decimal(20) not null,
+primary key(id)
 );
-insert into bal(bal, tSpent)
+insert into balTable(bal, tSpent)
 values(12000, 0);
