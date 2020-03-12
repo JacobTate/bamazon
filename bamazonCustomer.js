@@ -48,7 +48,7 @@ function promptCustomerForItem() {
     {
       name: "choice",
       type: "input",
-      message: "enter a product id or press x to exit. \n------ type bal to see your current balance. \n------ type $spent to see the all time total you have spent"
+      message: "enter a product id or press x to exit. \n\n type bal to see your current balance. \n\n type $spent to see the all time total you have spent"
     },
 
   ]).then(function (res) {
@@ -131,10 +131,6 @@ function makePurchase(product, quantity) {
   });
 };
 
-// Check to see if the product the user chose exists in the inventory
-function checkInventory(choiceId, inventory) {
-
-}
 function showBal() {
   connection.query("select bal from balTable where id = 1;", function (err, res) {
     if (err) throw err;
@@ -165,4 +161,3 @@ function showTotalSpent(){
     connection.end();
   });
 }
-

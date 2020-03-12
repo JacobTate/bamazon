@@ -59,17 +59,18 @@ function loadManagerOptions(products) {
     else if (input === "Add to Inventory"){
         addToInventory(products);
     }
-    else if(input === "Quit"){
-        connection.end();
+    else if(input === "Add New Product"){
+      addNewItem();
     }
     else{
-        getProductInfo();
-    }
+       connection.end();
+       console.log("Goodbye");
+    };
             
               
       
     });
-}
+};
 
 // Query the DB for low inventory products
 function loadLowInventory() {
@@ -131,12 +132,7 @@ function addQuantity(product, quantity) {
       });
 }
 
-// Gets all departments, then gets the new product info, then inserts the new product into the db
-function addNewProduct() {
-  getDepartments(function(err, departments) {
-    getProductInfo(departments).then(insertNewProduct);
-  });
-}
+
 
 // Prompts manager for new product info, then adds new product
 function getProductInfo(departments) {
@@ -151,11 +147,12 @@ function getProductInfo(departments) {
         name: "product_name",
         message: "What is the name of the product you would like to add?"
       },
-    {
-      type: "input",
-      name: "department_name",
-      message: "Which department does this product fall into?"
-    },
+      {
+        type: "list",
+        name: "department_name",
+        choices: departments,
+        message: "Which department does this product fall into?"
+      },  
     {
       type: "input",
       name: "price",
@@ -181,41 +178,18 @@ function getProductInfo(departments) {
   });
 }
 
-// Adds new product to the db
-function insertNewProduct(val) {
-  connection.query(
-
-    //FIXME: ADD YOUE SQL QUERY HERE
-
-    function(err, res) {
+function addNewItem(){
+    connection.query(  "SELECT department FROM products GROUP BY department HAVING count(*) >= 1;", function(err, res){
       if (err) throw err;
-      console.log(val.product_name + " ADDED TO BAMAZON!\n");
-      // When done, re run loadManagerMenu, effectively restarting our app
-      loadManagerMenu();
-    }
-  );
+   var departments = [];   
+for (var i = 0; i < res.length; i++) {
+var element = res[i].department
+  departments.push(element);
+}
+getProductInfo(departments);
+;
+ });
+
+
 }
 
-// Gets all of the departments and runs a callback function when done
-function getDepartments(cb) {
-//FIXME:  connection.query(//ADD-YOUE-SQL-QUERY-HERE, cb);
-}
-
-// Is passed an array of departments from the db, then returns an array of just the department names
-function getDepartmentNames(departments) {
-  return departments.map(function(department) {
-    return department.department_name;
-  });
-}
-
-// Check to see if the product the user chose exists in the inventory
-function checkInventory(choiceId, inventory) {
-  for (var i = 0; i < inventory.length; i++) {
-    if (inventory[i].item_id === choiceId) {
-      // If a matching product is found, return the product
-      return inventory[i];
-    }
-  }
-  // Otherwise return null
-  return null;
-}
