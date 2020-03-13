@@ -109,7 +109,7 @@ function makePurchase(product, quantity) {
             updateTotalSpent(newBalance);
             console.log("cost:" + newBalance);
             
-            if(bal - cost <= 0){
+            if(bal - newBalance <= 0){
               connection.end();
               return console.log("insufficient balance of: " + bal);
             }
