@@ -46,3 +46,4 @@ Things to see:
 - Costomer view <a href="https://www.youtube.com/watch?v=wlKy8HSuXoI&feature=youtu.be" target="_blank">Video</a><br>
 - Manager view <a href="https://www.youtube.com/watch?v=zWSGd41u-cg&feature=youtu.be" target="_blank">Video</a><br>
 - Add a product <a href="https://www.youtube.com/watch?v=u-zbZPuzvWE&feature=youtu.be" target="_blank">Video</a>
+- Database setup <a href="https://youtu.be/S_uShaCs8r4" target="_blank">video</a>
