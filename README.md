@@ -2,6 +2,10 @@
 # created by Tacob Tate for homework
 
 Bamazon is like a node cli version of Amazon.<br>
+To install:
+clone (ssh):<code>git@github.com:JacobTate/bamazon.git</code><br>
+clone (https): <code>https://github.com/JacobTate/bamazon.git</code><br>
+Git bash command: <code> git clone [url]</code><br>
 There are two views. customer view and manager view.<br>
 To see the customer view use <code> node bamazonCostomer.js</code><br>
 For manager view use <code> node bamazonManager.js</code><br>
