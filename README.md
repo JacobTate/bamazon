@@ -1,5 +1,5 @@
 # bamazon
-# created by Tacob Tate for homework
+# created by Tacob Tate
 
 Bamazon is like a node cli version of Amazon.<br>
 To install:<br>
