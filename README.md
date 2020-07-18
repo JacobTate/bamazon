@@ -2,7 +2,7 @@
 # created by Tacob Tate for homework
 
 Bamazon is like a node cli version of Amazon.<br>
-To install:
+To install:<br>
 clone (ssh):<code>git@github.com:JacobTate/bamazon.git</code><br>
 clone (https): <code>https://github.com/JacobTate/bamazon.git</code><br>
 Git bash command: <code> git clone [url]</code><br>
