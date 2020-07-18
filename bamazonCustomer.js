@@ -15,7 +15,7 @@ var connection = mysql.createConnection({
 
   // Your password
   password: "root",
-  database: "bamazon"
+  database: "bamazon",
 });
 
 // Creates the connection with the server and loads the product data upon a successful connection
@@ -23,11 +23,11 @@ connection.connect(function (err) {
   if (err) {
     console.error("error connecting: " + err.stack);
   }
-  loadProducts();
+  loadProducts("Welcome");
 });
 
 // Function to load the products table from the database and print results to the console
-function loadProducts() {
+function loadProducts(message) {
   // Selects all of the data from the MySQL products table
   connection.query("SELECT * FROM products", function (err, res) {
     if (err) throw err;
@@ -37,127 +37,141 @@ function loadProducts() {
 
     // Then prompt the customer for their choice of product, pass all the products to promptCustomerForItem
     promptCustomerForItem();
+    console.log(`\n\nmessage`);
   });
-
 }
 
 // Prompt the customer for a product ID
 function promptCustomerForItem() {
   // Prompts user for what they would like to purchase
-  inquirer.prompt([
-    {
-      name: "choice",
-      type: "input",
-      message: "enter a product id or press x to exit. \n\n type bal to see your current balance. \n\n type $spent to see the all time total you have spent"
-    },
-
-  ]).then(function (res) {
-
-
-    if (res.choice === "x") {
-      connection.end();
-      console.log("goodbye");
-      
-    }
-    else if (res.choice === "bal") {
-      showBal();
-    }
-    else if(res.choice === "$spent"){
-      showTotalSpent();
-    }
-    else {
-      promptCustomerForQuantity(res.choice);
-    }
-
-  });
+  inquirer
+    .prompt([
+      {
+        name: "choice",
+        type: "input",
+        message:
+          "enter a product id or press x to exit. \n\n type bal to see your current balance. \n\n type $spent to see the all time total you have spent",
+      },
+    ])
+    .then(function (res) {
+      if (res.choice === "x") {
+        connection.end();
+        console.log("goodbye");
+      } else if (res.choice === "bal") {
+        showBal();
+      } else if (res.choice === "$spent") {
+        showTotalSpent();
+      } else {
+        promptCustomerForQuantity(res.choice);
+      }
+    });
 }
 
 // Prompt the customer for a product quantity
 function promptCustomerForQuantity(product) {
-  inquirer.prompt([
-    {
-      type: "input",
-      message: "specify the quanity",
-      name: "qty"
-    }
-  ]).then(function (response) {
-
-    makePurchase(product, response.qty)
-  });
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "specify the quanity",
+        name: "qty",
+      },
+    ])
+    .then(function (response) {
+      makePurchase(product, response.qty);
+    });
 }
-
 
 // Purchase the desired quantity of the desired item
 function makePurchase(product, quantity) {
-  connection.query("select qty from products where id = " + product + ";", function (err, resp) {
-    if (err) throw err;
-    var qty = resp[0].qty;
-    if (qty - quantity <= 0) {
-      connection.end();
-      return console.log("Insufficient quantity!");
-    }
-    else {
-  
-
-        connection.query("select price from products where id = " + product + ";", function (err, res) {
-          if (err) throw err;
-          var cost = res[0].price;
-          connection.query("select bal from balTable where id = 1;", function (err, resp) {
+  connection.query(
+    "select qty from products where id = " + product + ";",
+    function (err, resp) {
+      if (err) throw err;
+      var qty = resp[0].qty;
+      if (qty - quantity < 0) {
+        loadProducts("Insufficient quantity!");
+      } else {
+        connection.query(
+          "select price from products where id = " + product + ";",
+          function (err, res) {
             if (err) throw err;
-            var bal = resp[0].bal
-            var newBalance = cost * quantity;
-            updateTotalSpent(newBalance);
-            console.log("cost:" + newBalance);
-            
-            if(bal - newBalance <= 0){
-              connection.end();
-              return console.log("insufficient balance of: " + bal);
-            }
-           else{
-            connection.query("update products set qty = qty - " + quantity + " where id = " + product + ";", function (err, res) {
-              if (err) throw err;
-      
-              // Draw the table in the terminal using the response
-              console.table(res);
-    
-              updateBal(newBalance);
-            });
-           }
-          });
-          
-        });
-     
-    };
-  });
-};
+            var cost = res[0].price;
+            connection.query(
+              "select bal from balTable where id = 1;",
+              function (err, resp) {
+                if (err) throw err;
+                var bal = resp[0].bal;
+                var newBalance = cost * quantity;
+                updateTotalSpent(newBalance);
+                console.log("cost:" + newBalance);
+
+                if (bal - newBalance <= 0) {
+                  connection.end();
+                  return console.log("insufficient balance of: " + bal);
+                } else {
+                  connection.query(
+                    "update products set qty = qty - " +
+                      quantity +
+                      " where id = " +
+                      product +
+                      ";",
+                    function (err, res) {
+                      if (err) throw err;
+
+                      // Draw the table in the terminal using the response
+                      console.table(res);
+
+                      updateBal(newBalance);
+                    }
+                  );
+                }
+              }
+            );
+          }
+        );
+      }
+    }
+  );
+}
 
 function showBal() {
-  connection.query("select bal from balTable where id = 1;", function (err, res) {
+  connection.query("select bal from balTable where id = 1;", function (
+    err,
+    res
+  ) {
     if (err) throw err;
     console.log("you have: $" + res[0].bal + " remaining.");
-
     connection.end();
   });
 }
 
-function updateBal(balNum){
-  connection.query("update balTable set bal = bal - " + balNum + " where id = 1;", function (err, res) {
-    if (err) throw err;
-    loadProducts();
-    
-  });
+function updateBal(balNum) {
+  connection.query(
+    "update balTable set bal = bal - " + balNum + " where id = 1;",
+    function (err, res) {
+      if (err) throw err;
+      loadProducts(" ");
+    }
+  );
 }
 
-function updateTotalSpent(TotalSpent){
-  connection.query("update balTable set tSpent = tSpent + " + TotalSpent + " where id = 1;", function (err, res) {
-    if (err) throw err;
-  });
+function updateTotalSpent(TotalSpent) {
+  connection.query(
+    "update balTable set tSpent = tSpent + " + TotalSpent + " where id = 1;",
+    function (err, res) {
+      if (err) throw err;
+    }
+  );
 }
 
-function showTotalSpent(){
-  connection.query("select tSpent from balTable where id = 1;", function (err, res) {
+function showTotalSpent() {
+  connection.query("select tSpent from balTable where id = 1;", function (
+    err,
+    res
+  ) {
     if (err) throw err;
-    console.log("you have spent: " + res[0].tSpent + "!");
-    connection.end();
+    loadProducts(`You have spent: ${res[0].tSpent}!`);
+    //console.log("you have spent: " + res[0].tSpent + "!")
   });
 }
